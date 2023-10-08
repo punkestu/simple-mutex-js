@@ -1,29 +1,34 @@
-let isLocked = false;
-const queue = [];
+class SimpleMutexJs {
+    #isLocked;
+    #queue;
 
-function lock() {
-    return new Promise((resolve, reject) => {
-        queue.push({resolve, reject});
-        dispatch();
-    });
-}
+    constructor() {
+        this.#isLocked = false;
+        this.#queue = [];
+    }
 
-function dispatch() {
-    if (!isLocked && queue.length > 0) {
-        isLocked = true;
-        const entry = queue.shift();
-        if (!entry) {
-            return;
+    Lock() {
+        return new Promise((resolve, reject) => {
+            this.#queue.push({resolve, reject});
+            this.#dispatch();
+        });
+    }
+
+    #dispatch() {
+        if (!this.#isLocked && this.#queue.length > 0) {
+            this.#isLocked = true;
+            const entry = this.#queue.shift();
+            if (!entry) {
+                return;
+            }
+            entry.resolve({unlock: () => this.Unlock()});
         }
-        entry.resolve();
+    }
+
+    Unlock() {
+        this.#isLocked = false;
+        this.#dispatch();
     }
 }
 
-function unlock() {
-    isLocked = false;
-    dispatch();
-}
-
-module.exports = {
-    lock, unlock
-}
+module.exports = SimpleMutexJs;
