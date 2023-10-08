@@ -15,12 +15,12 @@ class SimpleMutexJs {
     }
 
     #dispatch() {
-        if (!this.#isLocked && this.#queue.length > 0) {
-            this.#isLocked = true;
+        if (!this.#isLocked) {
             const entry = this.#queue.shift();
             if (!entry) {
                 return;
             }
+            this.#isLocked = true;
             entry.resolve({unlock: () => this.Unlock()});
         }
     }
